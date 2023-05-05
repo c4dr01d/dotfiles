@@ -3,5 +3,5 @@
     email = c4droid@foxmail.com
 [url "github:"]
     insteadOf = https://github.com/
-[url "sourcehut:"]
-    insteadOf = https://git.sr.ht/
+[core]
+    editor = "vim"
