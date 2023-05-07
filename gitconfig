@@ -4,4 +4,4 @@
 [url "github:"]
     insteadOf = https://github.com/
 [core]
-    editor = "vim"
+    editor = "nvim"
