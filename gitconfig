@@ -1,6 +1,7 @@
 [user]
     name = c4droid
     email = c4droid@foxmail.com
+    signingkey = EAD42B3D210D05B97FC2BF41FA8FD6831800BCF3
 [url "github:"]
     insteadOf = https://github.com/
 [core]
