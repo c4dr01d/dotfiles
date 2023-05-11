@@ -22,3 +22,10 @@ if command -v guix &> /dev/null; then
         guix deploy -L $HOME/config $HOME/config/deploy.scm
     }
 fi
+enable-proxy() {
+  export http_proxy=http://127.0.0.1:7890
+  export https_proxy=http://127.0.0.1:7890
+}
+disable-proxy() {
+  unset http_proxy https_proxy
+}
