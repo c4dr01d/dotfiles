@@ -1,7 +1,8 @@
+;; -*- lexical-binding: t -*-
 (let ((old-threshold gc-cons-threshold))
   (add-hook 'emacs-startup-hook
-            (lambda ()
-              (setq gc-cons-threshold old-threshold)))
+	    (lambda ()
+	      (setq gc-cons-threshold old-threshold)))
   (setq gc-cons-threshold most-positive-fixnum))
 
 (setq warning-minimum-level :emergency)
