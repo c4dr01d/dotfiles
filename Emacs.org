@@ -1,0 +1,62 @@
+#+TITLE: Emacs配置
+
+* Emacs启动前配置
+:PROPERTIES:
+:header-args:emacs-lisp: :tangle early-init.el
+:END:
+
+** 启动速度优化
+
+#+begin_src emacs-lisp
+  (let ((old-threshold gc-cons-threshold))
+    (add-hook 'emacs-startup-hook
+              (lambda ()
+                (setq gc-cons-threshold old-threshold)))
+    (setq gc-cons-threshold most-positive-fixnum))
+#+end_src
+
+** 警告提示
+
+#+begin_src emacs-lisp
+  (setq warning-minimum-level :emergency)
+  (setq warning-suppress-types '((comp)))
+#+end_src
+
+** Emacs Lisp执行加速
+
+#+begin_src emacs-lisp
+  (setq native-comp-async-report-warnings-errors nil)
+  (setq native-comp-deferred-compilation nil)
+#+end_src
+
+** 内置包管理器
+
+#+begin_src emacs-lisp
+  (setq package-enable-at-startup nil)
+#+end_src
+
+* Emacs配置
+:PROPERTIES:
+:header-args:emacs-lisp: :tangle init.el
+:END:
+
+** 个人信息
+
+#+begin_src emacs-lisp
+  (setq user-full-name "c4droid")
+  (setq user-mail-address "c4droid@foxmail.com")
+#+end_src
+
+** Org
+
+*** 折叠
+
+#+begin_src emacs-lisp
+  (setq org-startup-indented t)
+#+end_src
+
+*** 模板
+
+#+begin_src emacs-lisp
+  (require 'org-tempo)
+#+end_src

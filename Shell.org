@@ -1,0 +1,73 @@
+#+TITLE: Shell配置
+#+PROPERTY: header-args :tangle-mode (identity #o444)
+
+* Bash
+
+** 终端类型判断
+
+#+begin_src sh :tangle bashrc
+  if [[ "$TERM" == "dumb" ]]; then
+      return
+  fi
+#+end_src
+
+** 别名
+
+*** Guix
+
+#+begin_src sh :tangle bashrc
+  if command -v guix &> /dev/null; then
+      system-reconfig() {
+          if [ -z $1 ]; then
+              echo "Need system hostname to reconfigure system."
+              return 1
+          fi
+          sudo guix system reconfigure -L $HOME/config $HOME/config/$USER/system/$1.scm
+      }
+      home-reconfig() {
+          guix home reconfigure -L $HOME/config $HOME/config/$USER/home.scm
+      }
+      deploy-machine() {
+          guix deploy -L $HOME/config $HOME/config/deploy.scm
+      }
+  fi
+#+end_src
+
+*** 代理
+
+#+begin_src sh :tangle bashrc
+  enable-proxy() {
+      export http_proxy=http://127.0.0.1:7890
+      export https_proxy=http://127.0.0.1:7890
+  }
+  disable-proxy() {
+      unset http_proxy https_proxy
+  }
+#+end_src
+
+* Git
+
+** 用户信息
+
+#+begin_src conf :tangle gitconfig
+  [user]
+      name = c4droid
+      email = c4droid@foxmail.com
+      signingkey = EAD42B3D210D05B97FC2BF41FA8FD6831800BCF3
+#+end_src
+
+** URL替换
+
+加速clone、push、pull等操作
+
+#+begin_src conf :tangle gitconfig
+  [url "github:"]
+       insteadOf = "https://github.com/"
+#+end_src
+
+** 编辑器
+
+#+begin_src conf :tangle gitconfig
+  [core]
+      editor = "emacsclient -t"
+#+end_src
