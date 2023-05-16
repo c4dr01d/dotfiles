@@ -55,6 +55,12 @@
   (setq user-mail-address "c4droid@foxmail.com")
 #+end_src
 
+** 主题
+
+#+begin_src emacs-lisp
+  (load-theme 'solarized-light t)
+#+end_src
+
 ** 启动界面
 
 #+begin_src emacs-lisp
@@ -207,6 +213,12 @@
     (add-hook 'dired-mode-hook 'dired-omit-mode)
     (add-hook 'dired-mode-hook 'dired-async-mode)
     (add-hook 'dired-mode-hook 'hl-line-mode))
+#+end_src
+
+** Python
+
+#+begin_src emacs-lisp
+  (setq-default python-indent-guess-offset-verbose nil)
 #+end_src
 
 ** Scheme

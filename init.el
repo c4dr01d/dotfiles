@@ -2,6 +2,8 @@
 (setq user-full-name "c4droid")
 (setq user-mail-address "c4droid@foxmail.com")
 
+(load-theme 'solarized-light t)
+
 (setq inhibit-startup-screen t)
 (setq inhibit-startup-echo-area-message t)
 (setq inhibit-scratch-message nil)
@@ -95,6 +97,8 @@
   (add-hook 'dired-mode-hook 'dired-omit-mode)
   (add-hook 'dired-mode-hook 'dired-async-mode)
   (add-hook 'dired-mode-hook 'hl-line-mode))
+
+(setq-default python-indent-guess-offset-verbose nil)
 
 (setq geiser-active-implementations '(guile))
 (with-eval-after-load 'scheme
