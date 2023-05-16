@@ -1,0 +1,32 @@
+#+TITLE: Git配置
+#+PROPERTY: header-args :tangle-mode (identity #o444)
+
+* Git
+:PROPERTIES:
+:header-args: :tangle gitconfig
+:END:
+
+** 用户信息
+
+#+begin_src conf
+  [user]
+      name = c4droid
+      email = c4droid@foxmail.com
+      signingkey = EAD42B3D210D05B97FC2BF41FA8FD6831800BCF3
+#+end_src
+
+** URL替换
+
+加速clone、push、pull等操作
+
+#+begin_src conf
+  [url "github:"]
+       insteadOf = "https://github.com/"
+#+end_src
+
+** 编辑器
+
+#+begin_src conf
+  [core]
+      editor = "emacsclient -t"
+#+end_src
