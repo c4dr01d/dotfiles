@@ -140,3 +140,7 @@
 (setq org-outline-path-complete-in-steps nil)
 (setq org-refile-targets
       '((org-agenda-files :maxlevel . 3)))
+
+(setq org-babel-load-languages
+      '((emacs-lisp . t)
+	(scheme . t)))
