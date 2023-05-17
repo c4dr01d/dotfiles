@@ -103,6 +103,8 @@
 (setq geiser-active-implementations '(guile))
 (with-eval-after-load 'scheme
   (add-hook 'scheme-mode-hook 'paredit-mode))
+(add-hook 'geiser-mode-hook #'macrostep-geiser-setup)
+(add-hook 'geiser-repl-mode-hook #'macrostep-geiser-setup)
 
 (setq eval-expression-print-level nil)
 (setq eval-expression-print-length nil)
