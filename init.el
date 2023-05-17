@@ -111,8 +111,8 @@
 
 (setq org-directory "~/org")
 
-(global-set-key (kbd "C-o c") 'org-capture)
-(global-set-key (kbd "C-o a") 'org-agenda)
+(global-set-key (kbd "C-c c") 'org-capture)
+(global-set-key (kbd "C-c a") 'org-agenda)
 
 (setq org-agenda-files '("~/org"))
 
@@ -141,6 +141,7 @@
 (setq org-refile-targets
       '((org-agenda-files :maxlevel . 3)))
 
-(setq org-babel-load-languages
-      '((emacs-lisp . t)
-	(scheme . t)))
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((emacs-lisp . t)
+   (scheme . t)))

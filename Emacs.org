@@ -249,8 +249,8 @@
 *** 快捷键绑定
 
 #+begin_src emacs-lisp
-  (global-set-key (kbd "C-o c") 'org-capture)
-  (global-set-key (kbd "C-o a") 'org-agenda)
+  (global-set-key (kbd "C-c c") 'org-capture)
+  (global-set-key (kbd "C-c a") 'org-agenda)
 #+end_src
 
 *** Agenda管理
@@ -309,7 +309,8 @@
 **** 编程语言支持列表
 
 #+begin_src emacs-lisp
-  (setq org-babel-load-languages
-	'((emacs-lisp . t)
-	  (scheme . t)))
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((emacs-lisp . t)
+     (scheme . t)))
 #+end_src
