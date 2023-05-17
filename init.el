@@ -109,48 +109,34 @@
 (with-eval-after-load 'elisp-mode
   (add-hook 'emacs-lisp-mode-hook 'paredit-mode))
 
+(setq org-directory "~/org")
+
+(global-set-key (kbd "C-o c") 'org-capture)
+(global-set-key (kbd "C-o a") 'org-agenda)
+
+(setq org-agenda-files '("~/org"))
+
 (setq org-startup-folded t)
 
 (require 'org-tempo)
 
-(require 'erc)
-(defvar erc-sasl-use-sasl t
-  "Set to nil to disable SASL auth")
-(defvar erc-sasl-server-regexp-list '()
-  "List of regexps matching server host names for which sasl
-  should be used")
-(defun erc-sasl-use-sasl-p ()
-  "Used internally to decide whether SASL should be used in the
-current session"
-  (and erc-sasl-use-sasl
-       (boundp 'erc-session-server)
-       (cl-loop for re in erc-sasl-server-regexp-list
-	     thereis (integerp (string-match re erc-session-server)))))
-(define-erc-response-handler (CAP)
-  "Client capability framework is used to request SASL auth, need
-  to wait for ACK to begin" nil
-  (let ((msg (erc-response.contents parsed)))
-    (when (string-match " *sasl" msg)
-      (erc-server-send "AUTHENTICATE PLAIN"))))
-(define-erc-response-handler (AUTHENTICATE)
-  "Handling empty server response indicating ready to receive
-  authentication." nil
-  (if erc-session-password
-      (let ((msg (erc-response.contents parsed)))
-	(when (string= "+" msg)
-	  ;; plain auth
-	  (erc-server-send
-	   (format "AUTHENTICATE %s"
-		   (base64-encode-string
-		    (concat "\0" (erc-current-nick)
-			    "\0" erc-session-password) t)))))
-    (progn
-      (erc-display-message
-       parsed 'error
-       (if erc-server-connected 'active proc)
-       "You must set a password in order to use SASL authentication.")
-      (erc-server-send (erc-server-send "AUTHENTICATE *")))))
-(define-erc-response-handler (903)
-  "Handling a successful SASL authentication." nil
-  (erc-server-send "CAP END"))
-(add-to-list 'erc-sasl-server-regexp-list "irc\\.libera\\.chat")
+(setq org-todo-keywords
+      '((sequence "TODO(t)" "WAIT(w)" "|" "DONE(d)" "CANCELED(c)")))
+
+(setq org-capture-templates
+      '(("i" "Inbox" entry (file "inbox.org")
+	 "* %?\n/Entered on/ %U")
+	("l" "学习" entry (file "learning.org")
+	 "* TODO %?\n/Entered on/ %U")
+	("w" "工作" entry (file "work.org")
+	 "* TODO %?\n/Entered on/ %U")
+	("p" "工程" entry (file "projects.org")
+	 "* TODO %?\n/Entered on/ %U")
+	("s" "私人" entry (file "private.org")
+	 "* %?\n/Entered on/ %U")))
+
+(setq org-refile-use-outline-path 'file)
+(setq org-refile-allow-creating-parent-nodes 'confirm)
+(setq org-outline-path-complete-in-steps nil)
+(setq org-refile-targets
+      '((org-agenda-files :maxlevel . 3)))
