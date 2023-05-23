@@ -6,7 +6,7 @@
 
 (setq inhibit-startup-screen t)
 (setq inhibit-startup-echo-area-message t)
-(setq inhibit-scratch-message nil)
+(setq initial-scratch-message nil)
 
 (tooltip-mode 0)
 (menu-bar-mode 0)
@@ -16,19 +16,70 @@
 (blink-cursor-mode 0)
 (setq-default cursor-type 'bar)
 
+(add-hook 'prog-mode-hook 'display-line-numbers-mode)
+
 (setq mode-line-compact t)
 (setq column-number-indicator-zero-based nil)
 (column-number-mode)
 
-(setq enable-recursive-minibuffers t)
-(setq completion-ignore-case t)
-(setq read-buffer-completion-ignore-case t)
-(setq read-file-name-completion-ignore-case t)
-(setq completion-auto-help nil)
-(setq completion-cycle-threshold 2)
+(add-hook 'grep-mode-hook 'wgrep-setup)
+
+(electric-pair-mode)
+
+(require 'vertico)
+(define-key vertico-map "C-j" 'vertico-next)
+(define-key vertico-map "C-k" 'vertico-previous)
+(define-key vertico-map "C-f" 'vertico-exit-input)
+(define-key minibuffer-local-map "M-h" 'vertico-directory-up)
+(setq vertico-cycle t)
+(vertico-mode)
+
+(require 'corfu)
+(define-key corfu-map "C-j" 'corfu-next)
+(define-key corfu-map "C-k" 'corfu-previous)
+(define-key corfu-map "TAB" 'corfu-insert)
+(define-key corfu-map "C-f" 'corfu-insert)
+(setq corfu-cycle t)
+(setq corfu-auto t)
+(setq corfu-preview-current nil)
+(setq corfu-quit-at-bounary t)
+(setq corfu-quit-no-match t)
+(global-corfu-mode)
+(defun corfu-enable-in-minibuffer ()
+  (when (where-is-internal #'completion-at-point (list (current-local-map)))
+    (setq-local corfu-echo-delay nil)
+    (setq-local corfu-popupinfo-delay nil)
+    (corfu-mode)))
+(add-hook 'minibuffer-setup-hook #'corfu-enable-in-minibuffer)
+
+(require 'orderless)
+(setq completion-styles '(orderless))
 (setq completion-category-defaults nil)
-(minibuffer-depth-indicate-mode)
-(minibuffer-electric-default-mode)
+(setq orderless-matching-styles '(orderless-literal orderless-regexp))
+(setq completion-category-overrides '((file (styles partial-completion))))
+
+(require 'consult)
+(require 'consult-dir)
+(global-set-key (kbd "C-s") 'consult-line)
+(global-set-key (kbd "C-M-l") 'consult-imenu)
+(global-set-key (kbd "C-x C-b") 'consult-buffer)
+(define-key minibuffer-local-map "C-r" 'consult-history)
+(setq completion-in-region-function #'consult-completion-in-region)
+(global-set-key (kbd "C-x C-d") 'consult-dir)
+(define-key vertico-map (kbd "C-x C-d") 'consult-dir)
+(define-key vertico-map (kbd "C-x C-j") 'consult-dir-jump-file)
+(setq consult-dir-project-list-function nil)
+
+(require 'marginalia)
+(setq marginalia-annotators '(marginalia-annotators-heavy
+			      marginalia-annotators-light
+			      nil))
+(marginalia-mode)
+
+(require 'embark)
+(global-set-key (kbd "C-M-.") 'embark-act)
+(define-key minibuffer-local-map "C-d" 'embark-act)
+(setq prefix-help-command #'embark-prefix-help-command)
 
 (setq savehist-file (concat (getenv "XDG_CACHE_HOME") "/emacs/savehist"))
 (setq history-delete-duplicates t)
@@ -71,10 +122,6 @@
 (setq imenu-auto-rescan-maxout 60000)
 (setq imenu-use-popup-menu nil)
 
-(with-eval-after-load 'paredit
-  (define-key paredit-mode-map "M-[" 'paredit-wrap-square)
-  (define-key paredit-mode-map "M-]" 'paredit-wrap-curly))
-
 (setq max-mini-window-height 1)
 (setq eldoc-echo-area-use-multiline-p nil)
 (setq eldoc-idle-delay 0)
@@ -101,15 +148,11 @@
 (setq-default python-indent-guess-offset-verbose nil)
 
 (setq geiser-active-implementations '(guile))
-(with-eval-after-load 'scheme
-  (add-hook 'scheme-mode-hook 'paredit-mode))
 (add-hook 'geiser-mode-hook #'macrostep-geiser-setup)
 (add-hook 'geiser-repl-mode-hook #'macrostep-geiser-setup)
 
 (setq eval-expression-print-level nil)
 (setq eval-expression-print-length nil)
-(with-eval-after-load 'elisp-mode
-  (add-hook 'emacs-lisp-mode-hook 'paredit-mode))
 
 (setq org-directory "~/org")
 
@@ -150,11 +193,12 @@
 
 (setq epa-pinentry-mode 'loopback)
 
+(setq send-mail-function 'smtpmail-send-it)
 (setq message-send-mail-function 'smtpmail-send-it)
 (setq smtpmail-default-smtp-server "smtp.qq.com")
+(setq smtpmail-stream-type 'ssl)
 (setq smtpmail-smtp-service 587)
 
-(require 'nnir)
 (setq gnus-select-method '(nnimap "foxmail"
 				  (nnimap-address "imap.qq.com")
 				  (nnimap-server-port 993)

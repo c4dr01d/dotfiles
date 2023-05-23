@@ -66,7 +66,7 @@
 #+begin_src emacs-lisp
   (setq inhibit-startup-screen t)
   (setq inhibit-startup-echo-area-message t)
-  (setq inhibit-scratch-message nil)
+  (setq initial-scratch-message nil)
 #+end_src
 
 ** UI
@@ -81,6 +81,12 @@
   (setq-default cursor-type 'bar)
 #+end_src
 
+** 行号
+
+#+begin_src emacs-lisp
+  (add-hook 'prog-mode-hook 'display-line-numbers-mode)
+#+end_src
+
 ** 状态栏
 
 #+begin_src emacs-lisp
@@ -89,18 +95,97 @@
   (column-number-mode)
 #+end_src
 
-** 补全
+** grep
 
 #+begin_src emacs-lisp
-  (setq enable-recursive-minibuffers t)
-  (setq completion-ignore-case t)
-  (setq read-buffer-completion-ignore-case t)
-  (setq read-file-name-completion-ignore-case t)
-  (setq completion-auto-help nil)
-  (setq completion-cycle-threshold 2)
+  (add-hook 'grep-mode-hook 'wgrep-setup)
+#+end_src
+
+** 括号
+
+#+begin_src emacs-lisp
+  (electric-pair-mode)
+#+end_src
+
+** 补全
+
+*** Vertico
+
+#+begin_src emacs-lisp
+  (require 'vertico)
+  (define-key vertico-map "C-j" 'vertico-next)
+  (define-key vertico-map "C-k" 'vertico-previous)
+  (define-key vertico-map "C-f" 'vertico-exit-input)
+  (define-key minibuffer-local-map "M-h" 'vertico-directory-up)
+  (setq vertico-cycle t)
+  (vertico-mode)
+#+end_src
+
+*** Corfu
+
+#+begin_src emacs-lisp
+  (require 'corfu)
+  (define-key corfu-map "C-j" 'corfu-next)
+  (define-key corfu-map "C-k" 'corfu-previous)
+  (define-key corfu-map "TAB" 'corfu-insert)
+  (define-key corfu-map "C-f" 'corfu-insert)
+  (setq corfu-cycle t)
+  (setq corfu-auto t)
+  (setq corfu-preview-current nil)
+  (setq corfu-quit-at-bounary t)
+  (setq corfu-quit-no-match t)
+  (global-corfu-mode)
+  (defun corfu-enable-in-minibuffer ()
+    (when (where-is-internal #'completion-at-point (list (current-local-map)))
+      (setq-local corfu-echo-delay nil)
+      (setq-local corfu-popupinfo-delay nil)
+      (corfu-mode)))
+  (add-hook 'minibuffer-setup-hook #'corfu-enable-in-minibuffer)
+#+end_src
+
+*** Orderless
+
+#+begin_src emacs-lisp
+  (require 'orderless)
+  (setq completion-styles '(orderless))
   (setq completion-category-defaults nil)
-  (minibuffer-depth-indicate-mode)
-  (minibuffer-electric-default-mode)
+  (setq orderless-matching-styles '(orderless-literal orderless-regexp))
+  (setq completion-category-overrides '((file (styles partial-completion))))
+#+end_src
+
+*** Consult
+
+#+begin_src emacs-lisp
+  (require 'consult)
+  (require 'consult-dir)
+  (global-set-key (kbd "C-s") 'consult-line)
+  (global-set-key (kbd "C-M-l") 'consult-imenu)
+  (global-set-key (kbd "C-x C-b") 'consult-buffer)
+  (define-key minibuffer-local-map "C-r" 'consult-history)
+  (setq completion-in-region-function #'consult-completion-in-region)
+  (global-set-key (kbd "C-x C-d") 'consult-dir)
+  (define-key vertico-map (kbd "C-x C-d") 'consult-dir)
+  (define-key vertico-map (kbd "C-x C-j") 'consult-dir-jump-file)
+  (setq consult-dir-project-list-function nil)
+#+end_src
+
+*** Marginalia
+
+#+begin_src emacs-lisp
+  (require 'marginalia)
+  (setq marginalia-annotators '(marginalia-annotators-heavy
+				marginalia-annotators-light
+				nil))
+  (marginalia-mode)
+#+end_src
+
+*** Embark
+
+#+begin_src emacs-lisp
+  (require 'embark)
+  (global-set-key (kbd "C-M-.") 'embark-act)
+  (define-key minibuffer-local-map "C-d" 'embark-act)
+  (setq prefix-help-command #'embark-prefix-help-command)
 #+end_src
 
 ** 历史记录保存
@@ -172,14 +257,6 @@
   (setq imenu-use-popup-menu nil)
 #+end_src
 
-** paredit
-
-#+begin_src emacs-lisp
-  (with-eval-after-load 'paredit
-    (define-key paredit-mode-map "M-[" 'paredit-wrap-square)
-    (define-key paredit-mode-map "M-]" 'paredit-wrap-curly))
-#+end_src
-
 ** eldoc
 
 #+begin_src emacs-lisp
@@ -225,8 +302,6 @@
 
 #+begin_src emacs-lisp
   (setq geiser-active-implementations '(guile))
-  (with-eval-after-load 'scheme
-    (add-hook 'scheme-mode-hook 'paredit-mode))
   (add-hook 'geiser-mode-hook #'macrostep-geiser-setup)
   (add-hook 'geiser-repl-mode-hook #'macrostep-geiser-setup)
 #+end_src
@@ -236,8 +311,6 @@
 #+begin_src emacs-lisp
   (setq eval-expression-print-level nil)
   (setq eval-expression-print-length nil)
-  (with-eval-after-load 'elisp-mode
-    (add-hook 'emacs-lisp-mode-hook 'paredit-mode))
 #+end_src
 
 ** Org
@@ -328,15 +401,16 @@
 *** SMTP
 
 #+begin_src emacs-lisp
+  (setq send-mail-function 'smtpmail-send-it)
   (setq message-send-mail-function 'smtpmail-send-it)
   (setq smtpmail-default-smtp-server "smtp.qq.com")
+  (setq smtpmail-stream-type 'ssl)
   (setq smtpmail-smtp-service 587)
 #+end_src
 
 *** GNUS
 
 #+begin_src emacs-lisp
-  (require 'nnir)
   (setq gnus-select-method '(nnimap "foxmail"
 				    (nnimap-address "imap.qq.com")
 				    (nnimap-server-port 993)
