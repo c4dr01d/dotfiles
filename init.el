@@ -1,25 +1,26 @@
 ;; -*- lexical-binding: t -*-
+(add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
+(add-to-list 'load-path (expand-file-name "site-lisp" user-emacs-directory))
 
-;; 其他配置加载路径
-(add-to-list 'load-path (expand-file-name "modules" user-emacs-directory))
-
-;; 系统平台判别
 (defvar is-guix-system
-  (and (eq system-type 'gnu/linux)
-       (file-exists-p "/etc/os-release")
-       (with-temp-buffer
-	 (insert-file-contents "/etc/os-release")
-	 (search-forward "ID=guix" nil t))
-       t))
+	(and (eq system-type 'gnu/linux)
+	     (file-exists-p "/etc/os-release")
+	     (with-temp-buffer
+               (insert-file-contents "/etc/os-release")
+               (search-forward "ID=guix" nil t))
+	     t))
+
+(defvar is-windows
+	(eq system-type 'windows-nt))
 
 (defvar exwm-enabled
-  (eq window-system 'x))
+	(and (eq system-type 'gnu/linux)
+	     (eq window-system 'x)))
 
-;; 用户信息
 (setq user-full-name "c4droid")
 (setq user-mail-address "c4droid@foxmail.com")
 
-;; 加载模块
+(require 'init-package)
 (require 'init-evil)
 (require 'init-org)
 (require 'init-editor)
