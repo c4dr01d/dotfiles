@@ -128,11 +128,9 @@
   (bind-key "r" #'remove-hook-at-point help-mode-map))
 
 (use-package highlight-defined
-  :guix (:using channel :name emacs-highlight-defined)
   :hook ((emacs-lisp-mode inferior-emacs-lisp-mode) . highlight-defined-mode))
 
 (use-package helpful
-  :guix (:using channel :name emacs-helpful)
   :bind (([remap describe-function] . helpful-callable)
 	 ([remap describe-command] . helpful-command)
 	 ([remap describe-variable] . helpful-variable)
@@ -162,13 +160,11 @@
   (advice-add #'helpful--navigate :override #'local/helpful--navigate))
 
 (use-package geiser
-  :guix (:using channel :name emacs-geiser)
   :config
   (setq geiser-default-implementations 'guile)
   (setq geiser-active-implementations '(guile)))
 
 (use-package macrostep
-  :guix (:using channel :name emacs-macrostep)
   :custom-face (macrostep-expansion-highlight-face ((t (:inherit tooltip :extend t))))
   :bind (:map emacs-lisp-mode-map
 	 ("C-c e" . macrostep-expand)
@@ -176,7 +172,6 @@
 	 ("C-c e" . macrostep-expand)))
 
 (use-package macrostep-geiser
-  :guix (:using channel :name emacs-macrostep-geiser)
   :hook ((geiser-mode . macrostep-geiser-setup)
 	 (geiser-repl-mode . macrostep-geiser-setup)))
 (provide 'init-lisp)

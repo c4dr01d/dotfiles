@@ -1,9 +1,6 @@
 ;; -*- lexical-binding: t -*-
-(global-set-key (kbd "C-M-u") 'universal-argument)
-
 (use-package evil
   :demand t
-  :guix (:using channel :name emacs-evil)
   :hook (after-init . evil-mode)
   :init
   (setq evil-want-integration t)
@@ -12,6 +9,11 @@
   (setq evil-want-C-i-jump nil)
   (setq evil-respect-visual-line-mode t)
   (setq evil-undo-system 'undo-redo)
+  (setq evil-lookup-func #'helpful-at-point)
+  (setq evil-search-module 'evil-search)
+  (setq evil-split-window-below t)
+  (setq evil-vsplit-window-right t)
+  (setq evil-auto-indent nil)
   :config
   (dolist (mode '(custom-mode
                   eshell-mode
@@ -22,22 +24,56 @@
 
 (use-package evil-collection
   :after evil
-  :guix (:using channel :name emacs-evil-collection)
+  :demand t
   :custom
-  (evil-collection-outline-bind-tab-p nil)
-  :config
-  (setq evil-collection-company-use-tng nil)
-  (evil-collection-init))
+  (evil-collection-magit-use-z-for-folds nil)
+  (evil-eollection-company-use-tng nil)
+  :init (evil-collection-init))
+
+(use-package evil-commentary
+  :after evil
+  :init (evil-commentary-mode))
+
+(use-package evil-surround
+  :after evil
+  :init (global-evil-surround-mode))
+
+(use-package evil-cleverparens
+  :after evil
+  :hook ((emacs-lisp-mode scheme-mode) . local/init-cleverparens)
+  :init (defun local/init-cleverparens ()
+          (require 'evil-cleverparens-util)
+
+          (evil-define-text-object evil-cp-a-defun (count &optional beg end type)
+            (if (evil-cp--inside-form-p)
+                (let ((bounds (evil-cp--top-level-bounds)))
+                  (evil-range (car bounds) (cdr bounds) 'inclusive :expanded t))
+              (error "Not inside a sexp.")))
+
+          (evil-define-text-object evil-cp-inner-defun (count &optional beg end type)
+            (if (evil-cp--inside-form-p)
+                (let ((bounds (evil-cp--top-level-bounds)))
+                  (evil-range (1+ (car bounds)) (1- (cdr bounds)) 'inclusive :expanded t))
+              (error "Not inside a sexp.")))
+
+          (define-key evil-outer-text-objects-map "f" #'evil-cp-a-defun)
+          (define-key evil-inner-text-objects-map "f" #'evil-cp-inner-defun)))
 
 (use-package evil-org
   :after (evil org)
-  :guix (:using channel :name emacs-evil-org)
   :hook ((org-mode . evil-org-mode)
          (org-agenda-mode . evil-org-mode))
   :config
   (require 'evil-org-agenda)
   (evil-org-set-key-theme '(navigation todo insert textobjects additional))
   (evil-org-agenda-set-keys))
+
+(use-package which-key
+  :demand t
+  :custom
+  (which-key-separator " ")
+  (which-key-prefix-prefix "+")
+  :init (which-key-mode))
 
 (with-eval-after-load 'org
   (evil-define-key '(normal insert visual) org-mode-map (kbd "C-j") 'org-next-visible-heading)

@@ -6,13 +6,42 @@
   (inhibit-startup-echo-area-message t)
   (initial-scratch-message nil))
 
+(use-package server
+  :ensure nil
+  :init (unless (and (fboundp 'server-running-p) (server-running-p))
+          (server-start)))
+
+(use-package mule
+  :ensure nil
+  :config
+  (set-language-environment 'utf-8)
+  (set-keyboard-coding-system 'utf-8)
+  (set-clipboard-coding-system 'utf-8)
+  (set-terminal-coding-system 'utf-8)
+  (set-buffer-file-coding-system 'utf-8)
+  (set-selection-coding-system 'utf-8)
+  (modify-coding-system-alist 'process "*" 'utf-8)
+  (setq default-process-coding-system '(utf-8 . utf-8))
+  (setq-default pathname-coding-system 'utf-8))
+
 (setq scroll-step 1)
 (setq scroll-conservatively 10000)
 (setq scroll-perserve-screen-position t)
 (setq auto-window-vscroll t)
 
+(advice-add 'risky-local-variable-p :override #'ignore)
+
+(use-package restart-emacs
+  :bind ("C-c x r" . restart-emacs))
+
+(use-package no-littering
+  :demand
+  :config (with-eval-after-load 'recentf
+            (add-to-list 'recentf-exclude no-littering-var-directory)
+            (add-to-list 'recentf-exclude no-littering-etc-directory)))
+
 (use-package dracula-theme
-  :if (or is-windows exwm-enabled)
+  :if (or is-windows is-linux exwm-enabled)
   :init (load-theme 'dracula t))
 
 (use-package simple
@@ -52,8 +81,10 @@
   :init (setq electric-pair-inhibit-predicate 'electric-pair-conservative-inhibit))
 
 (use-package wgrep
-  :guix (:using channel :name emacs-wgrep)
-  :hook (grep-mode . wgrep-setup))
+  :hook (grep-mode . wgrep-setup)
+  :custom
+  (wgrep-auto-save-buffer t)
+  (wgrep-change-readonly-file t))
 
 (use-package savehist
   :ensure nil
@@ -92,6 +123,7 @@
 
 (use-package eldoc
   :ensure nil
+  :hook (after-init . global-eldoc-mode)
   :custom
   (max-mini-window-height 1)
   (eldoc-idle-delay 0)

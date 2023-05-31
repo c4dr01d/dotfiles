@@ -19,5 +19,4 @@
   (setq use-package-expand-minimally t))
 (eval-when-compile
   (require 'use-package))
-(require 'guix-extra)
 (provide 'init-package)

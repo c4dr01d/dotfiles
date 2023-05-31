@@ -1,6 +1,5 @@
 ;; -*- lexical-binding: t -*-
 (use-package exwm
-  :guix (:using channel :name emacs-exwm)
   :hook (exwm-update-class . (lambda ()
 			       (exwm-workspace-rename-buffer exwm-class-name)))
   :config
