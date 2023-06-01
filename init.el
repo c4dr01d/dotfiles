@@ -11,27 +11,10 @@
 (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
 (add-to-list 'load-path (expand-file-name "site-lisp" user-emacs-directory))
 
-(defvar is-linux
-        (eq system-type 'gnu/linux))
-
-(defvar is-guix-system
-	(and is-linux
-	     (file-exists-p "/etc/os-release")
-	     (with-temp-buffer
-               (insert-file-contents "/etc/os-release")
-               (search-forward "ID=guix" nil t))
-	     t))
-
-(defvar is-windows
-	(eq system-type 'windows-nt))
-
-(defvar exwm-enabled
-	(and is-linux
-	     (eq window-system 'x)))
-
 (setq user-full-name "c4droid")
 (setq user-mail-address "c4droid@foxmail.com")
 
+(require 'init-const)
 (require 'init-package)
 (require 'init-editor)
 (require 'init-evil)

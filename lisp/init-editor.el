@@ -41,7 +41,7 @@
             (add-to-list 'recentf-exclude no-littering-etc-directory)))
 
 (use-package dracula-theme
-  :if (or is-windows is-linux exwm-enabled)
+  :if (or is-windows-graphical is-linux-graphical exwm-enabled)
   :init (load-theme 'dracula t))
 
 (use-package simple
