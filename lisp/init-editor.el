@@ -41,7 +41,7 @@
             (add-to-list 'recentf-exclude no-littering-etc-directory)))
 
 (use-package dracula-theme
-  :if (or is-windows-graphical is-linux-graphical exwm-enabled)
+  :if (or (windows-graphic-p) (linux-graphic-p))
   :init (load-theme 'dracula t))
 
 (use-package simple
@@ -69,6 +69,7 @@
 (setq-default use-file-dialog nil)
 
 (setq kill-whole-line t)
+(setq-default tab-width 4)
 (setq-default indent-tabs-mode nil)
 (setq-default require-final-newline nil)
 (setq tab-always-indent 'complete)

@@ -8,7 +8,7 @@
   :bind ("C-c s t" . ansi-term))
 
 (use-package exec-path-from-shell
-  :if is-linux
+  :if (linuxp)
   :hook (emacs-startup . (lambda ()
                            (setq exec-path-from-shell-arguments '("-l"))
                            (exec-path-from-shell-initialize))))

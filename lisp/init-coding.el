@@ -1,14 +1,7 @@
 ;; -*- lexical-binding: t -*-
-(use-package prog-mode
-  :ensure nil
-  :hook (prog-mode . flymake-mode))
-
-(use-package flymake
-  :ensure nil
-  :bind (:map flymake-mode-map
-         ("C-c n" . flymake-goto-next-error)
-         ("C-c p" . flymake-goto-prev-error))
-  :custom (elisp-flymake-byte-compile-load-path load-path))
+(use-package flycheck
+  :hook (prog-mode . flycheck-mode)
+  :custom (flycheck-emacs-lisp-load-path 'inherit))
 
 (use-package compile
   :ensure nil
@@ -32,7 +25,7 @@
   :init (persp-mode))
 
 (use-package persp-projectile
-  :if is-windows
+  :if (windowsp)
   :after projectile)
 
 (provide 'init-coding)

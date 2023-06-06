@@ -41,7 +41,7 @@
 
 (use-package org-agenda
   :ensure nil
-  :custom (org-agenda-files '("~/org"))
+  :custom (org-agenda-files '("~/org/personal"))
   :config
   (setq org-todo-keywords
         '((sequence "TODO(t)" "WAIT(w)" "|" "DONE(d)" "CANCELED(c)"))))

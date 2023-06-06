@@ -14,7 +14,7 @@
 (setq user-full-name "c4droid")
 (setq user-mail-address "c4droid@foxmail.com")
 
-(require 'init-const)
+(require 'init-funcs)
 (require 'init-package)
 (require 'init-editor)
 (require 'init-evil)
@@ -30,5 +30,8 @@
 (require 'init-web)
 (require 'init-org)
 (require 'init-mail)
-(when exwm-enabled
+(when (windowsp)
+  (require 'init-windows))
+(when (exwmp)
   (require 'init-exwm))
+(require 'mocker)
