@@ -1,0 +1,51 @@
+autoload -U promptinit && promptinit
+
+setopt prompt_subst
+autoload -Uz vcs_info
+
+zstyle ':vcs_info:*' enable git svn hg
+zstyle ':vcs_info:(hg*|git*):*' get-revision true
+zstyle ':vcs_info:(hg*|git*):*' check-for-changes true
+zstyle ':vcs_info:*' unstagedstr " %F{red}%Bu!%b%F"
+
+zstyle ':vcs_info:*' actionformats '%F{029}%b%F'
+zstyle ':vcs_info:*' formats '%F{029}%b%F%u'
+zstyle ':vcs_info:(sv[nk]|bzr):*' branchformat '%b:%r'
+
+vcs_info_wrapper() {
+    vcs_info
+    if [ -n "$vcs_info_msg_0_" ]; then
+        echo "${vcs_info_msg_0_}$del"
+    fi
+}
+
+local curdir="%~"
+local hostname="%M"
+local username="%n"
+local bold="%B"
+local unbold="%b"
+local standout="%S"
+local unstandout="%s"
+local colorfg="%F"
+local uncolorfg="%f"
+local colorbg="%K"
+local uncolorbg="%k"
+local mytime="%*"
+local mydate="%D"
+local line_tty="%y"
+local rootorwhat="%#"
+local return_status="%?"
+local host_color="{red}"
+
+# right prompt
+function zle-line-init zle-keymap-select {
+    VIM_PROMPT="$bold$colorfg{036} [NORMAL] $uncolorfg$unbold"
+    RPS1="${${KEYMAP/vicmd/$VIM_PROMPT}/(main|viins)/}$(vcs_info_wrapper) $EPS1"
+    zle reset-prompt
+}
+
+zle -N zle-line-init
+zle -N zle-keymap-select
+export KEYTIMEOUT=1
+
+PROMPT="$colorfg{29}$curdir$uncolorfg $colorfg{102}|$uncolorfg $colorfg{102}%(!.$colorfg{red}.)$username$uncolorfg$colorfg{088}:$uncolorfg$colorfg$host_color$hostname$uncolorfg$colorfg{102} $return_status $colorfg{240}» $uncolorfg"

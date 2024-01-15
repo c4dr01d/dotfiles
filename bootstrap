@@ -1,0 +1,8 @@
+#!/bin/sh
+WORKDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+MY_GUILE_DIR="$(mktemp --directory)"
+
+git clone --depth 1 "https://github.com/c4dr01d/guile" "$MY_GUILE_DIR"
+
+GUILE_LOAD_PATH=$MY_GUILE_DIR/modules \
+    ./config --fetch --deploy

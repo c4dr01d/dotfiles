@@ -1,0 +1,223 @@
+#!/usr/bin/env guile
+!#
+(use-modules (ice-9 format)
+             (ice-9 match)
+             (srfi srfi-1)
+             (srfi srfi-26)
+             (srfi srfi-37)
+             (c4droid configs)
+             (c4droid files)
+             (c4droid links)
+             (c4droid messages)
+             (c4droid sources)
+             (c4droid utils))
+
+(define (home-file . file-parts)
+  (apply build-file-name (getenv "HOME") file-parts))
+
+(define (config-file . file-parts)
+  (apply home-file "dotfiles" file-parts))
+
+(set-locale)
+
+(define (my-repo name)
+  (string-append "https://github.com/c4dr01d/" name))
+
+(define %configs
+  (list (config* #:name "zsh"
+                 #:links (list
+                          (link* #:filename (home-file ".zshenv")
+                                 #:target (config-file "zshenv"))
+                          (link* #:filename (home-file ".zprofile")
+                                 #:target (config-file "zprofile"))
+                          (link* #:filename (home-file ".zshrc")
+                                 #:target (config-file "zshrc"))
+                          (link* #:filename (home-file ".config/zsh")
+                                 #:target (config-file "zsh"))))
+        (config* #:name "guile"
+                 #:source (source* #:uri (my-repo "guile")
+                                   #:directory (config-file "guile"))
+                 #:links (list
+                          (link* #:filename (home-file ".config/guile")
+                                 #:target (config-file "guile"))))
+        (config* #:name "dircolors"
+                 #:links (list
+                          (link* #:filename (home-file ".config/dircolors")
+                                 #:target (config-file "dircolors"))))
+        (config* #:name "neovim"
+	         #:source (source* #:uri (my-repo "nvim-config")
+		                   #:directory (config-file "nvim"))
+                 #:links (list
+                          (link* #:filename (home-file ".config/nvim")
+                                 #:target (config-file "nvim"))))))
+
+(define (configs-names)
+  (map config-name %configs))
+
+(define (configs-links)
+  (append-map config-links %configs))
+
+(define (show-help)
+  (display "Usage: config OPTION [CONFIG]...
+List, show info or deploy available/specified configurations.")
+  (display "\n
+Options:
+  -h, --help        display this help and exit
+  -l, --list        list available configurations and exit
+  -O, --list-old    list old configuration files and exit
+  -o, --ls-old      perform 'ls -l' on the old configuration files and exit
+  -D, --delete-old  delete old configuration files and exit
+  -s, --show        show info of the specified configurations
+  -f, --fetch       fetch (git clone) source of the specified configurations
+  -d, --deploy      deploy (create symlinks) the specified configurations")
+  (display "\n
+If '--show', '--fetch' or '--deploy' option is used and no configuration
+is specified, then all available ones will be shown, fetched or
+deployed.  '--fetch' and '--deploy' can be specified together.")
+  (newline))
+
+(define* (list-strings strings #:key title (proc (lambda (s)
+                                                   (format #t "~{~a~%~}" (sort s string-ci<)))))
+  (when title
+    (display title)
+    (newline))
+  (proc strings))
+
+(define (show-configs-names)
+  (list-strings (configs-names)
+                #:title "Available configurations:"))
+
+(define (call-with-old-files proc)
+  (let ((files (old-files)))
+    (if (null? files)
+        (display "There are no old configuration files.\n")
+        (proc (old-files)))))
+
+(define (show-old-files)
+  (call-with-old-files
+    (lambda (files)
+      (list-strings files
+                    #:title "Old configuration files:"))))
+
+(define (ls-old-files)
+  (call-with-old-files
+    (lambda (files)
+      (list-strings files
+                    #:title "Old configuration files:"
+                    #:proc (lambda (files)
+                             (apply system*
+                                    "ls" "-l" "--directory" "--color=auto"
+                                    (sort files string-ci<)))))))
+
+(define (delete-old-files)
+  (call-with-old-files (cut map delete-file-recursively <>)))
+
+(define %options
+  (list (option '(#\h "help") #f #f
+                (lambda _
+                  (show-help)
+                  (exit 0)))
+        (option '(#\l "list") #f #f
+                (lambda _
+                  (show-configs-names)
+                  (exit 0)))
+        (option '(#\O "list-old") #f #f
+                (lambda _
+                  (show-old-files)
+                  (exit 0)))
+        (option '(#\o "ls-old") #f #f
+                (lambda _
+                  (ls-old-files)
+                  (exit 0)))
+        (option '(#\D "delete-old") #f #f
+                (lambda _
+                  (delete-old-files)
+                  (exit 0)))
+        (option '(#\s "show") #f #f
+                (lambda (opt name arg seed)
+                  (alist-cons 'action 'show seed)))
+        (option '(#\f "fetch") #f #f
+                (lambda (opt name arg seed)
+                  (alist-cons 'action 'fetch seed)))
+        (option '(#\d "deploy") #f #f
+                (lambda (opt name arg seed)
+                  (alist-cons 'action 'deploy seed)))))
+
+(define (parse-args args)
+  (reverse
+   (args-fold args %options
+              (lambda (opt name arg seed)
+                (print-error "Unrecognized option: '~a'" name)
+                seed)
+              (lambda (arg seed)
+                (alist-cons 'config arg seed))
+              '())))
+
+(define (old-filename filename)
+  (string-append filename "-old"))
+
+(define (old-unique-filename filename)
+  (unique-filename (old-filename filename)))
+
+(define (old-files)
+  (append-map (lambda (link)
+                (find-matching-files
+                  (old-filename (link-filename link))))
+              (configs-links)))
+
+(define deploy-config*
+  (cut deploy-config <> old-unique-filename))
+
+(define (options->values name opts)
+  (filter-map (match-lambda
+                ((key . value)
+                 (and (eq? key name) value))
+                (_ #f))
+              opts))
+
+(define options->config-names
+  (cut options->values 'config <>))
+
+(define options->action-names
+  (cut options->values 'action <>))
+
+(define (action-names->action names)
+  (let ((show? (memq 'show names))
+        (fetch? (memq 'fetch names))
+        (deploy? (memq 'deploy names)))
+    (cond
+     (show? show-config)
+     ((and fetch? deploy?)
+      (lambda (config)
+        (fetch-config config)
+        (deploy-config* config)))
+     (fetch? fetch-config)
+     (deploy? deploy-config*)
+     (else #f))))
+
+(define (lookup-config name)
+  (find (lambda (config)
+          (equal? (config-name config) name))
+        %configs))
+
+(define (lookup-configs names)
+  (filter-map
+   (lambda (name)
+     (or (lookup-config name)
+         (begin (print-error "No '~a' configuration was found" name) #f)))
+   names))
+
+(define (main arg0 . args)
+  (let* ((opts (parse-args args))
+         (config-names (options->config-names opts))
+         (action-names (options->action-names opts))
+         (configs (if (null? config-names)
+                      %configs
+                      (lookup-configs config-names)))
+         (action (or (action-names->action action-names)
+                     (leave "\
+No action is specified, try --help for more information"))))
+    (map action configs)))
+
+(when (batch-mode?)
+  (apply main (command-line)))
