@@ -25,15 +25,17 @@
 
 (define %configs
   (list (config* #:name "zsh"
+		 #:source (source* #:uri (my-repo "zsh-config")
+				   #:directory (config-file "zsh"))
                  #:links (list
                           (link* #:filename (home-file ".zshenv")
-                                 #:target (config-file "zshenv"))
+                                 #:target (config-file "zsh/zshenv"))
                           (link* #:filename (home-file ".zprofile")
-                                 #:target (config-file "zprofile"))
+                                 #:target (config-file "zsh/zprofile"))
                           (link* #:filename (home-file ".zshrc")
-                                 #:target (config-file "zshrc"))
+                                 #:target (config-file "zsh/zshrc"))
                           (link* #:filename (home-file ".config/zsh")
-                                 #:target (config-file "zsh"))))
+                                 #:target (config-file "zsh/zsh"))))
         (config* #:name "guile"
                  #:source (source* #:uri (my-repo "guile")
                                    #:directory (config-file "guile"))
