@@ -1,5 +1,6 @@
-zsh/plugins
-guile
-nvim
-guix
-zsh
+zsh/plugins/
+emacs/
+guile/
+guix/
+zsh/
+tmux/

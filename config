@@ -25,8 +25,8 @@
 
 (define %configs
   (list (config* #:name "zsh"
-		 #:source (source* #:uri (my-repo "zsh-config")
-				   #:directory (config-file "zsh"))
+		         #:source (source* #:uri (my-repo "zsh-config")
+				                   #:directory (config-file "zsh"))
                  #:links (list
                           (link* #:filename (home-file ".zshenv")
                                  #:target (config-file "zsh/zshenv"))
@@ -46,18 +46,24 @@
                  #:links (list
                           (link* #:filename (home-file ".config/dircolors")
                                  #:target (config-file "dircolors"))))
-        (config* #:name "neovim"
-	         #:source (source* #:uri (my-repo "nvim-config")
-		                   #:directory (config-file "nvim"))
+        (config* #:name "emacs"
+	             #:source (source* #:uri (my-repo "emacs-config")
+		                           #:directory (config-file "emacs"))
                  #:links (list
-                          (link* #:filename (home-file ".config/nvim")
-                                 #:target (config-file "nvim"))))
-	(config* #:name "guix"
-		 #:source (source* #:uri (my-repo "guix-config")
-				   #:directory (config-file "guix"))
-		 #:links (list
-			  (link* #:filename (home-file ".config/guix/config")
-				 #:target (config-file "guix"))))))
+                          (link* #:filename (home-file ".config/emacs")
+                                 #:target (config-file "emacs"))))
+	    (config* #:name "guix"
+		         #:source (source* #:uri (my-repo "guix-config")
+				                   #:directory (config-file "guix"))
+		         #:links (list
+			              (link* #:filename (home-file ".config/guix/config")
+				                 #:target (config-file "guix"))))
+	    (config* #:name "tmux"
+		         #:source (source* #:uri (my-repo "tmux-config")
+				                   #:directory (config-file "tmux"))
+		         #:links (list
+			              (link* #:filename (home-file ".config/tmux")
+				                 #:target (config-file "tmux"))))))
 
 (define (configs-names)
   (map config-name %configs))
@@ -103,19 +109,19 @@ deployed.  '--fetch' and '--deploy' can be specified together.")
 
 (define (show-old-files)
   (call-with-old-files
-    (lambda (files)
-      (list-strings files
-                    #:title "Old configuration files:"))))
+   (lambda (files)
+     (list-strings files
+                   #:title "Old configuration files:"))))
 
 (define (ls-old-files)
   (call-with-old-files
-    (lambda (files)
-      (list-strings files
-                    #:title "Old configuration files:"
-                    #:proc (lambda (files)
-                             (apply system*
-                                    "ls" "-l" "--directory" "--color=auto"
-                                    (sort files string-ci<)))))))
+   (lambda (files)
+     (list-strings files
+                   #:title "Old configuration files:"
+                   #:proc (lambda (files)
+                            (apply system*
+                                   "ls" "-l" "--directory" "--color=auto"
+                                   (sort files string-ci<)))))))
 
 (define (delete-old-files)
   (call-with-old-files (cut map delete-file-recursively <>)))
@@ -170,7 +176,7 @@ deployed.  '--fetch' and '--deploy' can be specified together.")
 (define (old-files)
   (append-map (lambda (link)
                 (find-matching-files
-                  (old-filename (link-filename link))))
+                 (old-filename (link-filename link))))
               (configs-links)))
 
 (define deploy-config*
