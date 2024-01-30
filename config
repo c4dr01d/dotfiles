@@ -50,7 +50,7 @@
                      (link* #:filename (home-file ".config/guile")
                             #:target (config-file "guile"))))
    (config* #:name "guix"
-            #:source (source* #:uri (my-repo "guix")
+            #:source (source* #:uri (my-repo "guix-config")
                               #:directory (config-file "guix"))
             #:links (list
                      (link* #:filename (home-file ".config/guix/system")
